@@ -43,8 +43,9 @@ gen = api.search_submissions(subreddit=args.subreddit)
 counter = 0
 posts = []
 for result in gen:
-    counter += 1
-    posts.append((result.title, result.author, result.selftext, result.full_link))
+    if result.author != '[deleted]':
+        posts.append((result.title, result.author, result.selftext, result.full_link))
+        counter += 1
 
 print(f'There are {counter} submissions in total under r/{args.subreddit}. Start scraping individual posts.')
 
