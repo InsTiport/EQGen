@@ -84,7 +84,7 @@ for title, author, self_text, link in tqdm.tqdm(posts):
     js = json.dumps(submissionTree)
     file_title = title.replace(' ', '_').replace('/', '><')
     if len(file_title) > 45:
-        file_title = file_title
+        file_title = file_title[:45]
     with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
         w.write(f'{title}\n')
         w.write(f'{author}\n')
