@@ -82,7 +82,10 @@ for title, author, self_text, link in tqdm.tqdm(posts):
         submissionTree.append(make_tree(top_level_comment))
 
     js = json.dumps(submissionTree)
-    with open(os.path.join('data', args.subreddit, title.replace(' ', '_').replace('/', '><')), 'w') as w:
+    file_title = title.replace(' ', '_').replace('/', '><')
+    if len(file_title) > 45:
+        file_title = file_title
+    with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
         w.write(f'{title}\n')
         w.write(f'{author}\n')
         w.write(f'{self_text}\n')
