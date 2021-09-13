@@ -73,6 +73,7 @@ reddit = praw.Reddit(
 
 os.makedirs(os.path.dirname('data' + '/'), exist_ok=True)
 os.makedirs(os.path.dirname(os.path.join('data', args.subreddit) + '/'), exist_ok=True)
+counter = 0
 for title, author, self_text, link in tqdm.tqdm(posts):
     submission = reddit.submission(url=link)
 
@@ -82,12 +83,16 @@ for title, author, self_text, link in tqdm.tqdm(posts):
         submissionTree.append(make_tree(top_level_comment))
 
     js = json.dumps(submissionTree)
-    file_title = title.replace(' ', '_').replace('/', '><')
-    if len(file_title) > 45:
-        file_title = file_title[:45]
+
+    file_title = title if len(title) <= 45 else title[:45]
+    file_title = file_title.replace(' ', '_').replace('/', '><')
+    file_title = f'{counter}_{file_title}'
+
     with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
         w.write(f'{title}\n')
         w.write(f'{author}\n')
         w.write(f'{self_text}\n')
         w.write(f'{js}\n')
         w.write(f'{link}\n')
+
+    counter += 1
