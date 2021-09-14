@@ -74,25 +74,37 @@ reddit = praw.Reddit(
 os.makedirs(os.path.dirname('data' + '/'), exist_ok=True)
 os.makedirs(os.path.dirname(os.path.join('data', args.subreddit) + '/'), exist_ok=True)
 counter = 0
+skipped_links = set()
 for title, author, self_text, link in tqdm.tqdm(posts):
     submission = reddit.submission(url=link)
 
     submissionTree = []
 
     for top_level_comment in submission.comments:
-        submissionTree.append(make_tree(top_level_comment))
+        try:
+            submissionTree.append(make_tree(top_level_comment))
+        except AttributeError:
+            skipped_links.add(link)
+            continue
 
-    js = json.dumps(submissionTree)
+    if len(submissionTree) > 0:
+        js = json.dumps(submissionTree)
 
-    file_title = title if len(title) <= 45 else title[:45]
-    file_title = file_title.replace(' ', '_').replace('/', '><')
-    file_title = f'{counter}_{file_title}'
+        file_title = title if len(title) <= 45 else title[:45]
+        file_title = file_title.replace(' ', '_').replace('/', '><')
+        file_title = f'{counter}_{file_title}'
 
-    with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
-        w.write(f'{title}\n')
-        w.write(f'{author}\n')
-        w.write(f'{self_text}\n')
-        w.write(f'{js}\n')
-        w.write(f'{link}\n')
+        with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
+            w.write(f'{title}\n')
+            w.write(f'{author}\n')
+            w.write(f'{self_text}\n')
+            w.write(f'{js}\n')
+            w.write(f'{link}\n')
 
-    counter += 1
+        counter += 1
+
+# record files with deleted responses
+with open(os.path.join('data', args.subreddit, 'skipped_posts.txt'), 'w') as skip_w:
+    for skipped_link in skipped_links:
+        skip_w.write(f'{skipped_link}\n')
+print(f'Scraped {counter} posts in total.')
