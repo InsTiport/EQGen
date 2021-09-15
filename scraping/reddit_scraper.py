@@ -106,8 +106,8 @@ for title, author, self_text, link in tqdm.tqdm(posts):
     if len(submissionTree) > 0:
         js = json.dumps(submissionTree)
 
-        file_title = title if len(title) <= 240 else title[:240]
-        file_title = f'{counter}_{replace_space_and_illegal_char(file_title)}'
+        file_title = f'{counter}_{replace_space_and_illegal_char(title)}'
+        file_title = file_title if len(file_title) <= 240 else file_title[:240]
 
         with open(os.path.join('data', args.subreddit, file_title), 'w', encoding="utf-8") as w:
             w.write(f'{title}\n')
