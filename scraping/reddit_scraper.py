@@ -17,6 +17,19 @@ def make_tree(comment):
     return tree
 
 
+def replace_space_and_illegal_char(s):
+    return s.replace(' ', '_') \
+        .replace('<', '[less]') \
+        .replace('>', '[greater]') \
+        .replace(':', '[colon]') \
+        .replace('"', '[quote]') \
+        .replace('/', '[forward_slash]') \
+        .replace('\\', '[backslash]') \
+        .replace('|', '[pipe]') \
+        .replace('?', '[qmark]') \
+        .replace('*', '[asterisk]')
+
+
 '''
 General setup
 '''
@@ -71,14 +84,17 @@ reddit = praw.Reddit(
     user_agent=user_agent,
 )
 
-os.makedirs(os.path.dirname('data' + '/'), exist_ok=True)
-os.makedirs(os.path.dirname(os.path.join('data', args.subreddit) + '/'), exist_ok=True)
+os.makedirs(os.path.join('data'), exist_ok=True)
+os.makedirs(os.path.join('data', args.subreddit), exist_ok=True)
 counter = 0
 skipped_links = set()
 for title, author, self_text, link in tqdm.tqdm(posts):
     submission = reddit.submission(url=link)
 
     submissionTree = []
+
+    if len(submission.comments) == 0:
+        continue
 
     for top_level_comment in submission.comments:
         try:
@@ -90,11 +106,10 @@ for title, author, self_text, link in tqdm.tqdm(posts):
     if len(submissionTree) > 0:
         js = json.dumps(submissionTree)
 
-        file_title = title if len(title) <= 45 else title[:45]
-        file_title = file_title.replace(' ', '_').replace('/', '><')
-        file_title = f'{counter}_{file_title}'
+        file_title = title if len(title) <= 240 else title[:240]
+        file_title = f'{counter}_{replace_space_and_illegal_char(file_title)}'
 
-        with open(os.path.join('data', args.subreddit, file_title), 'w') as w:
+        with open(os.path.join('data', args.subreddit, file_title), 'w', encoding="utf-8") as w:
             w.write(f'{title}\n')
             w.write(f'{author}\n')
             w.write(f'{self_text}\n')
