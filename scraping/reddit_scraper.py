@@ -1,6 +1,7 @@
 import os
 import json
 import praw
+import prawcore
 import tqdm
 import argparse
 from psaw import PushshiftAPI
@@ -93,7 +94,10 @@ for title, author, self_text, link in tqdm.tqdm(posts):
 
     submissionTree = []
 
-    if len(submission.comments) == 0:
+    try:
+        if len(submission.comments) == 0:
+            continue
+    except prawcore.exceptions.NotFound:
         continue
 
     for top_level_comment in submission.comments:
