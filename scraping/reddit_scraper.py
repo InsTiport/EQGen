@@ -97,7 +97,7 @@ for title, author, self_text, link in tqdm.tqdm(posts):
     try:
         if len(submission.comments) == 0:
             continue
-    except prawcore.exceptions.NotFound:
+    except prawcore.exceptions.NotFound or prawcore.exceptions.ServerError:
         continue
 
     for top_level_comment in submission.comments:
